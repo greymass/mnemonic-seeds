@@ -28,12 +28,24 @@ ci-test: node_modules
 ci-lint: node_modules
 	@${BIN}/eslint src --ext .ts --max-warnings 0 --format unix && echo "Ok"
 
+docs: $(SRC_FILES) node_modules
+	./node_modules/.bin/typedoc \
+		--excludeInternal \
+		--excludePrivate --excludeProtected \
+		 --includeVersion --readme none \
+		--out docs \
+		src/index.ts
+
+.PHONY: deploy-pages
+deploy-pages: docs
+	./node_modules/.bin/gh-pages -d docs
+
 node_modules:
 	yarn install --non-interactive --frozen-lockfile --ignore-scripts
 
 .PHONY: clean
 clean:
-	rm -rf lib/ coverage/
+	rm -rf lib/ coverage/ docs/
 
 .PHONY: distclean
 distclean: clean
