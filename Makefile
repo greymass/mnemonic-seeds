@@ -29,16 +29,14 @@ ci-lint: node_modules
 	@${BIN}/eslint src --ext .ts --max-warnings 0 --format unix && echo "Ok"
 
 docs: $(SRC_FILES) node_modules
-	./node_modules/.bin/typedoc \
-		--excludeInternal \
-		--excludePrivate --excludeProtected \
-		 --includeVersion --readme none \
-		--out docs \
+	@${BIN}/typedoc --out docs \
+		--excludeInternal --excludePrivate --excludeProtected \
+		--includeVersion --readme none \
 		src/index.ts
 
 .PHONY: deploy-pages
 deploy-pages: docs
-	./node_modules/.bin/gh-pages -d docs
+	@${BIN}/gh-pages -d docs
 
 node_modules:
 	yarn install --non-interactive --frozen-lockfile --ignore-scripts
