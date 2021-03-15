@@ -19,6 +19,13 @@ coverage: node_modules
 lint: node_modules
 	@${BIN}/eslint src --ext .ts --fix
 
+.PHONY: publish
+publish: | distclean node_modules
+	@git diff-index --quiet HEAD || (echo "Uncommitted changes, please commit first" && exit 1)
+	@git fetch origin && git diff origin/master --quiet || (echo "Changes not pushed to origin, please push first" && exit 1)
+	@yarn config set version-tag-prefix "" && yarn config set version-git-message "Version %s"
+	@yarn publish && git push && git push --tags
+
 .PHONY: ci-test
 ci-test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' ${BIN}/nyc --reporter=text \
