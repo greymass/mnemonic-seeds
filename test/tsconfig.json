@@ -4,6 +4,11 @@
         "isolatedModules": false,
         "module": "commonjs",
         "target": "es6",
+        "baseUrl": ".",
+        "paths": {
+            "$lib": ["../src"],
+            "$lib/*": ["../src/*"],
+        },
     },
     "include": ["./**/*.ts"]
 }
