@@ -1,4 +1,5 @@
 SRC_FILES := $(shell find src -name '*.ts')
+TEST_FILES := $(wildcard test/*.ts)
 BIN := ./node_modules/.bin
 MOCHA_OPTS := -u tdd -r ts-node/register -r tsconfig-paths/register --extension ts
 
@@ -48,12 +49,19 @@ docs: $(SRC_FILES) node_modules
 deploy-pages: docs
 	@${BIN}/gh-pages -d docs
 
+test/browser.html: $(SRC_FILES) $(TEST_FILES) test/rollup.config.js node_modules
+	@${BIN}/rollup -c test/rollup.config.js
+
+.PHONY: browser-test
+browser-test: test/browser.html
+	@open test/browser.html
+
 node_modules:
 	yarn install --non-interactive --frozen-lockfile --ignore-scripts
 
 .PHONY: clean
 clean:
-	rm -rf lib/ coverage/ docs/
+	rm -rf lib/ coverage/ docs/ test/browser.html
 
 .PHONY: distclean
 distclean: clean

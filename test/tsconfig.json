@@ -4,6 +4,7 @@
         "isolatedModules": false,
         "module": "commonjs",
         "target": "es6",
+        "types": ["mocha"],
         "baseUrl": ".",
         "paths": {
             "$lib": ["../src"],
