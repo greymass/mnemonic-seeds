@@ -9,6 +9,7 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
 import virtual from '@rollup/plugin-virtual'
+import {terser} from 'rollup-plugin-terser'
 
 const testFiles = fs
     .readdirSync(__dirname)
@@ -32,7 +33,7 @@ const template = `
       mocha.setup('tdd');
       mocha.checkLeaks();
     </script>
-    <script>%%tests%%</script>
+    %%tests%%
     <script class="mocha-exec">
       mocha.run();
     </script>
@@ -40,14 +41,20 @@ const template = `
 </html>
 `
 
-function inline() {
+function testBundler() {
     return {
-        name: 'Inliner',
+        name: 'Test Bundler',
         generateBundle(opts, bundle) {
             const file = path.basename(opts.file)
             const output = bundle[file]
             delete bundle[file]
-            const code = `${output.code}\n//# sourceMappingURL=${output.map.toUrl()}`
+            const code = [
+                '<script>',
+                output.code,
+                `//# sourceMappingURL=${output.map.toUrl()}`,
+                '//# sourceURL=tests.ts',
+                '</script>',
+            ].join('\n')
             this.emitFile({
                 type: 'asset',
                 fileName: file,
@@ -82,7 +89,14 @@ export default [
             resolve({browser: true}),
             commonjs(),
             json(),
-            inline(),
+            terser({
+                mangle: false,
+                format: {
+                    beautify: true,
+                },
+                compress: false,
+            }),
+            testBundler(),
         ],
     },
 ]

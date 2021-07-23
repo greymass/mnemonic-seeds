@@ -1,5 +1,5 @@
 {
-    "name": "@greymass/PACKAGE",
+    "name": "PACKAGE",
     "description": "DESCRIPTION",
     "version": "0.0.0",
     "homepage": "https://github.com/greymass/PACKAGE",
@@ -7,10 +7,6 @@
     "main": "lib/PACKAGE.js",
     "module": "lib/PACKAGE.m.js",
     "types": "lib/PACKAGE.d.ts",
-    "browser": {
-        "buffer": false,
-        "crypto": false
-    },
     "sideEffects": false,
     "files": [
         "lib/*",
@@ -43,6 +39,7 @@
         "prettier": "^2.2.1",
         "rollup": "^2.38.2",
         "rollup-plugin-dts": "^3.0.1",
+        "rollup-plugin-terser": "^7.0.2",
         "ts-node": "^10.1.0",
         "tsconfig-paths": "^3.10.1",
         "typedoc": "^0.21.4",

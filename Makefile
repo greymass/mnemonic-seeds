@@ -11,12 +11,14 @@ test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
 		${BIN}/mocha ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
 
-.PHONY: coverage
-coverage: node_modules
+build/coverage: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
-		${BIN}/nyc --reporter=html \
-		${BIN}/mocha ${MOCHA_OPTS} -R nyan test/*.ts \
-			&& open coverage/index.html
+		${BIN}/nyc --reporter=html --report-dir=build/coverage \
+		${BIN}/mocha ${MOCHA_OPTS} -R nyan test/*.ts
+
+.PHONY: coverage
+coverage: build/coverage
+	@open build/coverage/index.html
 
 .PHONY: ci-test
 ci-test: node_modules
@@ -39,15 +41,24 @@ publish: | distclean node_modules
 	@yarn config set version-tag-prefix "" && yarn config set version-git-message "Version %s"
 	@yarn publish && git push && git push --tags
 
-docs: $(SRC_FILES) node_modules
-	@${BIN}/typedoc --out docs \
+.PHONY: docs
+docs: build/docs
+	@open build/docs/index.html
+
+build/docs: $(SRC_FILES) node_modules
+	@${BIN}/typedoc --out build/docs \
 		--excludeInternal --excludePrivate --excludeProtected \
-		--includeVersion --readme none \
+		--includeVersion --hideGenerator --readme none \
 		src/index.ts
 
+build/pages: build/docs test/browser.html
+	@mkdir -p build/pages
+	@cp -r build/docs/* build/pages/
+	@cp test/browser.html build/pages/tests.html
+
 .PHONY: deploy-pages
-deploy-pages: docs
-	@${BIN}/gh-pages -d docs
+deploy-pages: | clean build/pages node_modules
+	@${BIN}/gh-pages -d build/pages
 
 test/browser.html: $(SRC_FILES) $(TEST_FILES) test/rollup.config.js node_modules
 	@${BIN}/rollup -c test/rollup.config.js
@@ -61,7 +72,7 @@ node_modules:
 
 .PHONY: clean
 clean:
-	rm -rf lib/ coverage/ docs/ test/browser.html
+	rm -rf lib/ build/ test/browser.html
 
 .PHONY: distclean
 distclean: clean
