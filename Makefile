@@ -2,6 +2,7 @@ SRC_FILES := $(shell find src -name '*.ts')
 TEST_FILES := $(wildcard test/*.ts)
 BIN := ./node_modules/.bin
 MOCHA_OPTS := -u tdd -r ts-node/register -r tsconfig-paths/register --extension ts
+NYC_OPTS := --temp-dir build/nyc_output --report-dir build/coverage
 
 lib: ${SRC_FILES} package.json tsconfig.json node_modules rollup.config.js
 	@${BIN}/rollup -c && touch lib
@@ -11,9 +12,9 @@ test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
 		${BIN}/mocha ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
 
-build/coverage: node_modules
+build/coverage: ${SRC_FILES} ${TEST_FILES} node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
-		${BIN}/nyc --reporter=html --report-dir=build/coverage \
+		${BIN}/nyc ${NYC_OPTS} --reporter=html \
 		${BIN}/mocha ${MOCHA_OPTS} -R nyan test/*.ts
 
 .PHONY: coverage
@@ -23,7 +24,7 @@ coverage: build/coverage
 .PHONY: ci-test
 ci-test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
-		${BIN}/nyc --reporter=text \
+		${BIN}/nyc ${NYC_OPTS} --reporter=text \
 		${BIN}/mocha ${MOCHA_OPTS} -R list test/*.ts
 
 .PHONY: check
