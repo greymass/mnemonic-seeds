@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 SRC_FILES := $(shell find src -name '*.ts')
 TEST_FILES := $(wildcard test/*.ts)
 BIN := ./node_modules/.bin
