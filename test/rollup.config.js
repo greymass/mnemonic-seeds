@@ -85,7 +85,7 @@ export default [
             alias({
                 entries: [{find: '$lib', replacement: '../src'}],
             }),
-            typescript({target: 'es6', module: 'esnext', tsconfig: './test/tsconfig.json'}),
+            typescript({target: 'es6', module: 'es2020', tsconfig: './test/tsconfig.json'}),
             resolve({browser: true}),
             commonjs(),
             json(),
