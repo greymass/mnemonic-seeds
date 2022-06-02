@@ -5,12 +5,12 @@ Greymass TypeScript library template, intended for libraries that work in any Ja
 
 ## Installation
 
-The `PACKAGE` package is distributed as a module on [npm](https://www.npmjs.com/package/PACKAGE).
+The `@greymass/mnemonic-seeds` package is distributed as a module on [npm](https://www.npmjs.com/package/PACKAGE).
 
 ```
-yarn add PACKAGE
+yarn add @greymass/mnemonic-seeds
 # or
-npm install --save PACKAGE
+npm install --save @greymass/mnemonic-seeds
 ```
 
 ## Usage

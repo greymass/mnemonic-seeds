@@ -1,12 +1,12 @@
 {
-    "name": "PACKAGE",
-    "description": "DESCRIPTION",
+    "name": "@greymass/mnemonic-seeds",
+    "description": "Wrapper to facilitate the generation of mnemonic seeds and derived EOSIO keys.",
     "version": "0.0.0",
-    "homepage": "https://github.com/greymass/PACKAGE",
+    "homepage": "https://github.com/greymass/@greymass/mnemonic-seeds",
     "license": "BSD-3-Clause",
-    "main": "lib/PACKAGE.js",
-    "module": "lib/PACKAGE.m.js",
-    "types": "lib/PACKAGE.d.ts",
+    "main": "lib/@greymass/mnemonic-seeds.js",
+    "module": "lib/@greymass/mnemonic-seeds.m.js",
+    "types": "lib/@greymass/mnemonic-seeds.d.ts",
     "sideEffects": false,
     "files": [
         "lib/*",
@@ -16,6 +16,9 @@
         "prepare": "make"
     },
     "dependencies": {
+        "@greymass/eosio": "^0.6.0",
+        "bip32": "^3.0.1",
+        "bip39": "^3.0.4",
         "tslib": "^2.1.0"
     },
     "devDependencies": {
