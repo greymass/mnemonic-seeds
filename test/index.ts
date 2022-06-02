@@ -2,8 +2,11 @@ import {assert} from 'chai'
 
 import * as lib from '$lib'
 
-suite('index', function () {
-    test('maths', function () {
-        assert.equal(lib.maths(1, 2), 3)
+suite('MnemonicSeed', function () {
+    test('generateWords', function () {
+        const mnemonicSeed = lib.MnemonicSeed.generate();
+
+        console.log({mnemonicSeed})
+        assert.equal(mnemonicSeed.mnemonic, 'test, dog, cat, tree, sun, moon, star, star, sun, tree, cat, dog, test')
     })
 })
