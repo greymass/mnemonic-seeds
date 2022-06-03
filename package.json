@@ -1,6 +1,6 @@
 {
     "name": "@greymass/mnemonic-seeds",
-    "description": "Wrapper to facilitate the generation of mnemonic seeds and derived EOSIO keys.",
+    "description": "A wrapper to facilitate the generation of mnemonic seeds and derived EOSIO keys.",
     "version": "0.0.0",
     "homepage": "https://github.com/greymass/@greymass/mnemonic-seeds",
     "license": "BSD-3-Clause",
