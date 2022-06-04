@@ -10,8 +10,8 @@ import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'
 
 import {BIP32Interface} from 'bip32'
-import {PrivateKey, Bytes, Checksum256, Base58} from '@greymass/eosio'
-import hash, {sha256} from 'hash.js'
+import {Base58, Bytes, PrivateKey} from '@greymass/eosio'
+import {sha256} from 'hash.js'
 
 import {MnemonicWords} from './types'
 
@@ -28,11 +28,13 @@ export class MnemonicSeed {
 
     public get hex(): Promise<string> {
         return new Promise((resolve, reject) => {
-            mnemonicToSeed(this.mnemonicWords).then((seed) => {
-                resolve(seed.toString('hex'))
-            }).catch((err) => {
-                reject(err)
-            })
+            mnemonicToSeed(this.mnemonicWords)
+                .then((seed) => {
+                    resolve(seed.toString('hex'))
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         })
     }
 
@@ -54,8 +56,13 @@ export class MnemonicSeed {
         const node: BIP32Interface = bip32.fromSeed(hexSeed)
         const bip32Interface = node.derivePath(path)
 
-        // @ts-ignore
-        const privateKeyBuffer = Bytes.from([0x80]).appending(bip32Interface.privateKey)
+        if (!bip32Interface?.privateKey) {
+            throw new Error('Failed to derive private key')
+        }
+
+        const privateKeyBuffer = Bytes.from([0x80]).appending(
+            Bytes.from(bip32Interface.privateKey!)
+        )
 
         const checksum = dsha256Checksum(privateKeyBuffer.array)
 
