@@ -23,14 +23,14 @@ suite('MnemonicSeed', function () {
             const mnemonicSeed = lib.MnemonicSeed.from(words)
             const pk = await mnemonicSeed.derivePrivateKey()
 
-            assert.equal(pk.toString(), 'PVT_K1_2WhwiBELDD3GNk5p23vBqtxTuyK4LP78Y6WTPxCVAtGiKEybia')
+            assert.equal(pk.toString(), 'PVT_K1_RTdDFmwdRAUNaBhhRENMeiD2PNbMtGFoVQqPd1onjNLh4xpfj')
         })
 
         test('with path param arguments', async function () {
             const mnemonicSeed = lib.MnemonicSeed.from(words)
             const pk = await mnemonicSeed.derivePrivateKey(1)
 
-            assert.equal(pk.toWif(), '5JxUDV97eE4LPLJdPPtyxAbmx6TfknsaxC16UhynXsbrAJDDDh7')
+            assert.equal(pk.toWif(), '5KPQQKP34kp8fBVGPEKcexEaMkDyWRRa71GDYtFa7uahhetC8Sc')
         })
     })
 })
