@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import * as lib from '$lib'
 
 suite('MnemonicSeed', function () {
-    const words = 'east member flee syrup naive uncover feature aim pitch sight awful weather';
+    const words = 'enrich cycle essay coast asthma shadow heavy business inject volcano era bamboo grid avoid magic fortune first toilet various grit river cash luggage fan';
 
     suiteSetup(function () {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -23,14 +23,14 @@ suite('MnemonicSeed', function () {
             const mnemonicSeed = lib.MnemonicSeed.from(words)
             const pk = await mnemonicSeed.derivePrivateKey()
 
-            assert.equal(pk.toString(), 'PVT_K1_4MwSem1F7gB7srwdJEZRsyDC5NzvSrcWqbkKFpHBaEQMHLMADbe')
+            assert.equal(pk.toString(), 'PVT_K1_2WhwiBELDD3GNk5p23vBqtxTuyK4LP78Y6WTPxCVAtGiKEybia')
         })
 
         test('with path param arguments', async function () {
             const mnemonicSeed = lib.MnemonicSeed.from(words)
-            const pk = await mnemonicSeed.derivePrivateKey('m/0/1/1')
+            const pk = await mnemonicSeed.derivePrivateKey(1)
 
-            assert.equal(pk.toWif(), 'L3Lno4hwJJGkB9gtPyaNpbinNFbwSTch78ZBEfkaFhewzGXQEEjK')
+            assert.equal(pk.toWif(), '5JxUDV97eE4LPLJdPPtyxAbmx6TfknsaxC16UhynXsbrAJDDDh7')
         })
     })
 })

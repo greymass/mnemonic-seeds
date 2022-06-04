@@ -10,7 +10,8 @@ import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'
 
 import {BIP32Interface} from 'bip32'
-import {PrivateKey} from '@greymass/eosio'
+import {PrivateKey, Bytes, Checksum256, Base58} from '@greymass/eosio'
+import hash, {sha256} from 'hash.js'
 
 import {MnemonicWords} from './types'
 
@@ -26,9 +27,11 @@ export class MnemonicSeed {
     }
 
     public get hex(): Promise<string> {
-        return new Promise((resolve) => {
-            mnemonicToSeed(this.mnemonicWords, '').then((seed) => {
+        return new Promise((resolve, reject) => {
+            mnemonicToSeed(this.mnemonicWords).then((seed) => {
                 resolve(seed.toString('hex'))
+            }).catch((err) => {
+                reject(err)
             })
         })
     }
@@ -38,21 +41,32 @@ export class MnemonicSeed {
     }
 
     public static generate(): MnemonicSeed {
-        const mnemonic = generateMnemonic()
+        const mnemonic = generateMnemonic(256)
 
         return this.from(mnemonic)
     }
 
-    public async derivePrivateKey(path = 'm/0/0') {
-        // You must wrap a tiny-secp256k1 compatible implementation
+    public async derivePrivateKey(pathIndex = 0): Promise<PrivateKey> {
+        const path = `m/44/194/0/${pathIndex}/0`
+
         const bip32 = BIP32Factory(ecc)
-
-        const hexSeed = await this.hex
-
-        const node: BIP32Interface = bip32.fromSeed(Buffer.from(hexSeed, 'hex'))
-
+        const hexSeed = await mnemonicToSeed(this.mnemonicWords)
+        const node: BIP32Interface = bip32.fromSeed(hexSeed)
         const bip32Interface = node.derivePath(path)
 
-        return PrivateKey.from(bip32Interface.toWIF())
+        // @ts-ignore
+        const privateKeyBuffer = Bytes.from([0x80]).appending(bip32Interface.privateKey)
+
+        const checksum = dsha256Checksum(privateKeyBuffer.array)
+
+        const eosioPrivateKey = privateKeyBuffer.appending(Bytes.from(checksum))
+
+        return PrivateKey.from(Base58.encode(eosioPrivateKey))
     }
+}
+
+function dsha256Checksum(data: Uint8Array) {
+    const round1 = sha256().update(data).digest()
+    const round2 = sha256().update(round1).digest()
+    return new Uint8Array(round2.slice(0, 4))
 }
