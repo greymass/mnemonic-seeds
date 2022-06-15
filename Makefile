@@ -11,7 +11,7 @@ lib: ${SRC_FILES} package.json tsconfig.json node_modules rollup.config.js
 .PHONY: test
 test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
-		${BIN}/mocha ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
+		${BIN}/mocha --openssl-legacy-provider ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
 
 build/coverage: ${SRC_FILES} ${TEST_FILES} node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
@@ -26,7 +26,7 @@ coverage: build/coverage
 ci-test: node_modules
 	@TS_NODE_PROJECT='./test/tsconfig.json' \
 		${BIN}/nyc ${NYC_OPTS} --reporter=text \
-		${BIN}/mocha ${MOCHA_OPTS} -R list test/*.ts
+		${BIN}/mocha --openssl-legacy-provider ${MOCHA_OPTS} -R list test/*.ts
 
 .PHONY: check
 check: node_modules

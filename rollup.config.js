@@ -28,7 +28,7 @@ export default [
             format: 'cjs',
             sourcemap: true,
         },
-        plugins: [typescript({target: 'es6'})],
+        plugins: [typescript({target: 'es6', exclude: /.*\/wordlists\/(?!english).*\.json/})],
         external,
     },
     {
@@ -39,7 +39,7 @@ export default [
             format: 'esm',
             sourcemap: true,
         },
-        plugins: [typescript({target: 'es2020'})],
+        plugins: [typescript({target: 'es2020', exclude: /.*\/wordlists\/(?!english).*\.json/})],
         external,
     },
     {
