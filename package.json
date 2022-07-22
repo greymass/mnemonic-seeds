@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@greymass/eosio": "^0.6.0",
+        "@rollup/plugin-wasm": "^5.2.0",
         "bip32": "^3.0.1",
         "bip39": "^3.0.4",
         "tiny-secp256k1": "^2.2.1",
