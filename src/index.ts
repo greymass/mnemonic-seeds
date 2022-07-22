@@ -25,16 +25,10 @@ export class MnemonicSeed {
         return this.mnemonicWords
     }
 
-    public get hex(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            mnemonicToSeed(this.mnemonicWords)
-                .then((seed) => {
-                    resolve(seed.toString('hex'))
-                })
-                .catch((err) => {
-                    reject(err)
-                })
-        })
+    public async hex(): Promise<string> {
+        const seed = await mnemonicToSeed(this.mnemonicWords)
+
+        return seed.toString()
     }
 
     public static from(mnemonicWords: string): MnemonicSeed {
