@@ -9,6 +9,7 @@ import json from '@rollup/plugin-json'
 import resolve from '@rollup/plugin-node-resolve'
 import typescript from '@rollup/plugin-typescript'
 import virtual from '@rollup/plugin-virtual'
+import {wasm} from '@rollup/plugin-wasm';
 import {terser} from 'rollup-plugin-terser'
 
 const testFiles = fs
@@ -96,6 +97,7 @@ export default [
                 },
                 compress: false,
             }),
+            wasm(),
             testBundler(),
         ],
     },

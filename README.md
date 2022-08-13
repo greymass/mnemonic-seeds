@@ -5,18 +5,28 @@ Greymass TypeScript library template, intended for libraries that work in any Ja
 
 ## Installation
 
-The `PACKAGE` package is distributed as a module on [npm](https://www.npmjs.com/package/PACKAGE).
+The `@greymass/mnemonic-seeds` package is distributed as a module on [npm](https://www.npmjs.com/package/PACKAGE).
 
 ```
-yarn add PACKAGE
+yarn add @greymass/mnemonic-seeds
 # or
-npm install --save PACKAGE
+npm install --save @greymass/mnemonic-seeds
 ```
 
 ## Usage
 
-TODO
-
+```
+ import { MnemonicSeeds } from '@greymass/mnemonic-seeds';
+ 
+ const mnemonicSeed = MnemonicSeed.generate();
+ const words = mnemonicSeed.words;
+ 
+ const mnemonicSeedAtLaterDate = mnemonicSeed.from(words);
+ const derivedPk = await mnemonicSeedAtLaterDate.derivePrivateKey('m/0/1/1');
+ 
+ console.log(derivedPk.toString());
+ // 'PVT_K1_4MwSem1F7gB7srwdJEZRsyDC5NzvSrcWqbkKFpHBaEQMHLMADbe'
+```
 ## Developing
 
 You need [Make](https://www.gnu.org/software/make/), [node.js](https://nodejs.org/en/) and [yarn](https://classic.yarnpkg.com/en/docs/install) installed.
