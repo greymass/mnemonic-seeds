@@ -1,7 +1,7 @@
 import {generateMnemonic, mnemonicToSeed, validateMnemonic} from 'bip39'
 import {HDKey} from '@scure/bip32'
 
-import {Bytes, KeyType, PrivateKey} from '@wharfkit/antelope'
+import {Bytes, KeyType, PrivateKey, PublicKey} from '@wharfkit/antelope'
 
 import {MnemonicWords} from './types'
 
@@ -53,7 +53,7 @@ export class MnemonicSeed {
         const path = `m/44'/${ANTELOPE_COIN_TYPE}'/0'/0/${pathIndex}`
 
         const seed = await mnemonicToSeed(this.mnemonicWords)
-        const hdKey = HDKey.fromMasterSeed(seed)
+        const hdKey = HDKey.fromMasterSeed(Uint8Array.from(seed))
         const derivedKey = hdKey.derive(path)
 
         if (!derivedKey.privateKey) {
@@ -67,15 +67,17 @@ export class MnemonicSeed {
      * Derives both private and public keys from the mnemonic
      *
      * @param pathIndex The index in the derivation path (default: 0)
-     * @returns Object containing privateKey and publicKey as strings
+     * @returns Object containing privateKey and publicKey
      */
-    public async deriveKeys(pathIndex = 0): Promise<{privateKey: string; publicKey: string}> {
+    public async deriveKeys(
+        pathIndex = 0
+    ): Promise<{privateKey: PrivateKey; publicKey: PublicKey}> {
         const privateKey = await this.derivePrivateKey(pathIndex)
         const publicKey = privateKey.toPublic()
 
         return {
-            privateKey: privateKey.toString(),
-            publicKey: publicKey.toString(),
+            privateKey,
+            publicKey,
         }
     }
 
@@ -83,9 +85,9 @@ export class MnemonicSeed {
      * Derives the owner key (index 0) from the mnemonic
      * Standard convention: owner key is at index 0
      *
-     * @returns Object containing privateKey and publicKey as strings
+     * @returns Object containing privateKey and publicKey
      */
-    public async deriveOwnerKey(): Promise<{privateKey: string; publicKey: string}> {
+    public async deriveOwnerKey(): Promise<{privateKey: PrivateKey; publicKey: PublicKey}> {
         return this.deriveKeys(0)
     }
 
@@ -93,9 +95,9 @@ export class MnemonicSeed {
      * Derives the active key (index 1) from the mnemonic
      * Standard convention: active key is at index 1
      *
-     * @returns Object containing privateKey and publicKey as strings
+     * @returns Object containing privateKey and publicKey
      */
-    public async deriveActiveKey(): Promise<{privateKey: string; publicKey: string}> {
+    public async deriveActiveKey(): Promise<{privateKey: PrivateKey; publicKey: PublicKey}> {
         return this.deriveKeys(1)
     }
 }
