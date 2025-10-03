@@ -10,12 +10,14 @@ const ANTELOPE_COIN_TYPE = 194
 
 export class MnemonicSeed {
     private mnemonicWords: MnemonicWords
+    private coinType: number
 
-    constructor(mnemonicWords: string) {
+    constructor(mnemonicWords: string, coinType: number = ANTELOPE_COIN_TYPE) {
         if (!validateMnemonic(mnemonicWords)) {
             throw new Error('Invalid mnemonic phrase')
         }
         this.mnemonicWords = mnemonicWords
+        this.coinType = coinType
     }
 
     public get words(): string {
@@ -28,29 +30,29 @@ export class MnemonicSeed {
         return seed.toString('hex')
     }
 
-    public static from(mnemonicWords: string): MnemonicSeed {
-        return new MnemonicSeed(mnemonicWords)
+    public static from(mnemonicWords: string, coinType?: number): MnemonicSeed {
+        return new MnemonicSeed(mnemonicWords, coinType)
     }
 
     /**
      * Generates a new 12-word BIP39 mnemonic (128 bits)
      * Compatible with MetaMask and other standard wallet implementations
      */
-    public static generate(): MnemonicSeed {
+    public static generate(coinType?: number): MnemonicSeed {
         const mnemonic = generateMnemonic(128) // 128 bits = 12 words
 
-        return this.from(mnemonic)
+        return this.from(mnemonic, coinType)
     }
 
     /**
      * Derives a private key from the mnemonic using BIP44 derivation path
-     * Path format: m/44'/194'/0'/0/{pathIndex}
+     * Path format: m/44'/{coinType}'/0'/0/{pathIndex}
      *
      * @param pathIndex The index in the derivation path (default: 0)
      * @returns The derived PrivateKey
      */
     public async derivePrivateKey(pathIndex = 0): Promise<PrivateKey> {
-        const path = `m/44'/${ANTELOPE_COIN_TYPE}'/0'/0/${pathIndex}`
+        const path = `m/44'/${this.coinType}'/0'/0/${pathIndex}`
 
         const seed = await mnemonicToSeed(this.mnemonicWords)
         const hdKey = HDKey.fromMasterSeed(Uint8Array.from(seed))
