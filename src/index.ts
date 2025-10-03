@@ -46,11 +46,6 @@ export class MnemonicSeed {
      * Derives a private key from the mnemonic using BIP44 derivation path
      * Path format: m/44'/194'/0'/0/{pathIndex}
      *
-     * Uses browser-compatible libraries:
-     * - bip39 for mnemonic generation
-     * - @scure/bip32 for HD key derivation (pure JS, no WASM)
-     * - @wharfkit/antelope for proper Antelope key formatting (PVT_K1_... / PUB_K1_...)
-     *
      * @param pathIndex The index in the derivation path (default: 0)
      * @returns The derived PrivateKey
      */
