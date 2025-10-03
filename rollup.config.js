@@ -16,6 +16,7 @@ const banner = `
  */
 `.trim()
 
+// Keep all dependencies external - consumers will need to install them
 const external = Object.keys(pkg.dependencies)
 
 /** @type {import('rollup').RollupOptions} */
