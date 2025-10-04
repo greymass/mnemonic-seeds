@@ -1,4 +1,4 @@
-import {Bytes} from '@greymass/eosio'
+import {Bytes} from '@wharfkit/antelope'
 
 export type HexSeed = string
 export type MnemonicWords = string

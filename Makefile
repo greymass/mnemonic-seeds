@@ -2,7 +2,7 @@ SHELL := /bin/bash
 SRC_FILES := $(shell find src -name '*.ts')
 TEST_FILES := $(wildcard test/*.ts)
 BIN := ./node_modules/.bin
-MOCHA_OPTS := -u tdd -r ts-node/register -r tsconfig-paths/register --extension ts
+MOCHA_OPTS := -u tdd --require tsx/cjs --extension ts
 NYC_OPTS := --temp-dir build/nyc_output --report-dir build/coverage
 
 lib: ${SRC_FILES} package.json tsconfig.json node_modules rollup.config.js
@@ -10,11 +10,12 @@ lib: ${SRC_FILES} package.json tsconfig.json node_modules rollup.config.js
 
 .PHONY: test
 test: node_modules
-	@TS_NODE_PROJECT='./test/tsconfig.json' \
-		${BIN}/mocha --openssl-legacy-provider ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
+	@NODE_OPTIONS='--openssl-legacy-provider' \
+		TSX_TSCONFIG_PATH='./test/tsconfig.json' \
+		${BIN}/mocha ${MOCHA_OPTS} test/*.ts --grep '$(grep)'
 
 build/coverage: ${SRC_FILES} ${TEST_FILES} node_modules
-	@TS_NODE_PROJECT='./test/tsconfig.json' \
+	@TSX_TSCONFIG_PATH='./test/tsconfig.json' \
 		${BIN}/nyc ${NYC_OPTS} --reporter=html \
 		${BIN}/mocha ${MOCHA_OPTS} -R nyan test/*.ts
 
@@ -24,9 +25,10 @@ coverage: build/coverage
 
 .PHONY: ci-test
 ci-test: node_modules
-	@TS_NODE_PROJECT='./test/tsconfig.json' \
+	@NODE_OPTIONS='--openssl-legacy-provider' \
+		TSX_TSCONFIG_PATH='./test/tsconfig.json' \
 		${BIN}/nyc ${NYC_OPTS} --reporter=text \
-		${BIN}/mocha --openssl-legacy-provider ${MOCHA_OPTS} -R list test/*.ts
+		${BIN}/mocha ${MOCHA_OPTS} -R list test/*.ts
 
 .PHONY: check
 check: node_modules
@@ -36,12 +38,19 @@ check: node_modules
 format: node_modules
 	@${BIN}/eslint src --ext .ts --fix
 
-.PHONY: publish
-publish: | distclean node_modules
+.PHONY: .pre-publish-checks
+.pre-publish-checks:
 	@git diff-index --quiet HEAD || (echo "Uncommitted changes, please commit first" && exit 1)
 	@git fetch origin && git diff origin/master --quiet || (echo "Changes not pushed to origin, please push first" && exit 1)
 	@yarn config set version-tag-prefix "" && yarn config set version-git-message "Version %s"
+
+.PHONY: publish
+publish: .pre-publish-checks | distclean node_modules
 	@yarn publish && git push && git push --tags
+
+.PHONY: publish-next
+publish-next: .pre-publish-checks | lib node_modules
+	@yarn publish --tag next && git push && git push --tags
 
 .PHONY: docs
 docs: build/docs
