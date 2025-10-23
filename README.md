@@ -1,7 +1,6 @@
-PACKAGE
-=======
+# @greymass/mnemonic-seeds
 
-Greymass TypeScript library template, intended for libraries that work in any JavaScript context (node.js, Browser, React native), `@types/node` are installed only for tests, don't rely on any node.js types or imports inside `src/` (no `buffer`, `crypto` imports etc, they can be filled for browser but will bloat the bundle 100x)
+A TypeScript library for generating BIP39 mnemonic phrases and deriving Antelope (EOSIO) keys using BIP44 derivation paths. Compatible with any JavaScript environment (Node.js, Browser, React Native).
 
 ## Installation
 
@@ -16,17 +15,32 @@ npm install --save @greymass/mnemonic-seeds
 ## Usage
 
 ```
- import { MnemonicSeeds } from '@greymass/mnemonic-seeds';
- 
- const mnemonicSeed = MnemonicSeed.generate();
- const words = mnemonicSeed.words;
- 
- const mnemonicSeedAtLaterDate = mnemonicSeed.from(words);
- const derivedPk = await mnemonicSeedAtLaterDate.derivePrivateKey('m/0/1/1');
- 
- console.log(derivedPk.toString());
- // 'PVT_K1_4MwSem1F7gB7srwdJEZRsyDC5NzvSrcWqbkKFpHBaEQMHLMADbe'
+import {MnemonicSeed} from '@greymass/mnemonic-seeds'
+
+const mnemonicSeed = MnemonicSeed.generate()
+const words = mnemonicSeed.words
+
+const mnemonicSeedAtLaterDate = MnemonicSeed.from(words)
+
+// Derive master keys
+const {publicKey: masterPublicKey} = await mnemonicSeedAtLaterDate.deriveMasterKeys()
+
+// Convenience helper when you only need the master public key
+const masterPublicKeyAlt = await mnemonicSeedAtLaterDate.deriveMasterPublicKey()
+
+// Derive individual public keys from the master public key
+const pubKey5 = MnemonicSeed.deriveFromMasterPublicKey(masterPublicKey, 5)
+
+// Derive a full keypair at a specific index
+const {privateKey, publicKey: derivedPublicKey} = await mnemonicSeedAtLaterDate.deriveKeys(1)
+
+console.log(String(privateKey))
+// 'PVT_K1_RTdDFmwdRAUNaBhhRENMeiD2PNbMtGFoVQqPd1onjNLh4xpfj'
+
+console.log(String(publicKey))
+// 'PUB_K1_5Dcdx1x4b4k45dMarigpDxKa6H7DixaFAt9Bf1gWkifreKEsSi'
 ```
+
 ## Developing
 
 You need [Make](https://www.gnu.org/software/make/), [node.js](https://nodejs.org/en/) and [yarn](https://classic.yarnpkg.com/en/docs/install) installed.
