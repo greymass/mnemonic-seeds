@@ -168,4 +168,68 @@ suite('MnemonicSeed', function () {
             )
         })
     })
+
+    suite('deriveMasterKeys', function () {
+        test('returns both extended keys at change 0', async function () {
+            const mnemonicSeed = lib.MnemonicSeed.from(words)
+            const masterKeys = await mnemonicSeed.deriveMasterKeys()
+
+            assert.isDefined(masterKeys.privateExtendedKey)
+            assert.isDefined(masterKeys.publicExtendedKey)
+            assert.equal(
+                masterKeys.privateExtendedKey,
+                'xprvA1XXqzTaXt3nRtuQy3KZZgLXr4hqW7aRDtmQ3TdcX1BvDAEWZZU5pni7usjukTGuSgAMEJVnLwnvkcNSjNdEekxgfqQfotJEoGgDfUub8n9'
+            )
+            assert.equal(
+                masterKeys.publicExtendedKey,
+                'xpub6EWtFVzUNFc5eNyt54rZvpHGQ6YKuaJGb7gzqr3E5Liu5xZf76nLNb2bm856s84wmebx8qJSpwuuDAHns6A7RgR6X8WvVa7wjbSE5QtU3eZ'
+            )
+        })
+
+        test('returns different keys for different change values', async function () {
+            const mnemonicSeed = lib.MnemonicSeed.from(words)
+            const masterKeys0 = await mnemonicSeed.deriveMasterKeys(0)
+            const masterKeys1 = await mnemonicSeed.deriveMasterKeys(1)
+
+            assert.notEqual(masterKeys0.privateExtendedKey, masterKeys1.privateExtendedKey)
+            assert.notEqual(masterKeys0.publicExtendedKey, masterKeys1.publicExtendedKey)
+        })
+    })
+
+    suite('deriveMasterPublicKey', function () {
+        test('matches expected xpub at change 0', async function () {
+            const mnemonicSeed = lib.MnemonicSeed.from(words)
+            const xpub = await mnemonicSeed.deriveMasterPublicKey()
+
+            assert.equal(
+                xpub,
+                'xpub6EWtFVzUNFc5eNyt54rZvpHGQ6YKuaJGb7gzqr3E5Liu5xZf76nLNb2bm856s84wmebx8qJSpwuuDAHns6A7RgR6X8WvVa7wjbSE5QtU3eZ'
+            )
+        })
+
+        test('matches publicExtendedKey from deriveMasterKeys', async function () {
+            const mnemonicSeed = lib.MnemonicSeed.from(words)
+            const xpub = await mnemonicSeed.deriveMasterPublicKey()
+            const {publicExtendedKey} = await mnemonicSeed.deriveMasterKeys()
+
+            assert.equal(xpub, publicExtendedKey)
+        })
+    })
+
+    suite('deriveFromMasterPublicKey', function () {
+        test('produces matching keys across indices', async function () {
+            const mnemonicSeed = lib.MnemonicSeed.from(words)
+            const change = 0
+            const indices = [0, 1, 2, 5, 8]
+
+            const xpub = await mnemonicSeed.deriveMasterPublicKey(change)
+
+            for (const index of indices) {
+                const {publicKey} = await mnemonicSeed.deriveKeys(index, change)
+                const derived = lib.MnemonicSeed.deriveFromMasterPublicKey(xpub, index)
+
+                assert.equal(String(derived), String(publicKey))
+            }
+        })
+    })
 })

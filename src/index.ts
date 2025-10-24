@@ -3,7 +3,7 @@ import {HDKey} from '@scure/bip32'
 
 import {Bytes, KeyType, PrivateKey, PublicKey} from '@wharfkit/antelope'
 
-import {MnemonicWords} from './types'
+import {MasterExtendedKeys, MnemonicWords} from './types'
 
 // Antelope derivation path for BIP44 (coin type 194)
 const ANTELOPE_COIN_TYPE = 194
@@ -51,8 +51,48 @@ export class MnemonicSeed {
      * @param pathIndex The index in the derivation path (default: 0)
      * @returns The derived PrivateKey
      */
-    public async derivePrivateKey(pathIndex = 0): Promise<PrivateKey> {
-        const path = `m/44'/${this.coinType}'/0'/0/${pathIndex}`
+    private async deriveRootKey(): Promise<HDKey> {
+        const seed = await mnemonicToSeed(this.mnemonicWords)
+        const hdKey = HDKey.fromMasterSeed(Uint8Array.from(seed))
+        return hdKey
+    }
+
+    private getDerivationPath(change: number): string {
+        return `m/44'/${this.coinType}'/0'/${change}`
+    }
+
+    private getKeyDerivationPath(pathIndex: number, change: number): string {
+        return `${this.getDerivationPath(change)}/${pathIndex}`
+    }
+
+    private async derivePathKey(change = 0): Promise<HDKey> {
+        const accountKey = (await this.deriveRootKey()).derive(this.getDerivationPath(change))
+        if (!accountKey.privateExtendedKey || !accountKey.publicExtendedKey) {
+            throw new Error('Failed to derive account key')
+        }
+        return accountKey
+    }
+
+    public async deriveMasterKeys(change = 0): Promise<MasterExtendedKeys> {
+        const pathKey = await this.derivePathKey(change)
+
+        if (!pathKey.privateExtendedKey || !pathKey.publicExtendedKey) {
+            throw new Error('Failed to derive master key')
+        }
+
+        return {
+            privateExtendedKey: pathKey.privateExtendedKey,
+            publicExtendedKey: pathKey.publicExtendedKey,
+        }
+    }
+
+    public async deriveMasterPublicKey(change = 0): Promise<string> {
+        const keys = await this.deriveMasterKeys(change)
+        return keys.publicExtendedKey
+    }
+
+    public async derivePrivateKey(pathIndex = 0, change = 0): Promise<PrivateKey> {
+        const path = this.getKeyDerivationPath(pathIndex, change)
 
         const seed = await mnemonicToSeed(this.mnemonicWords)
         const hdKey = HDKey.fromMasterSeed(Uint8Array.from(seed))
@@ -72,9 +112,10 @@ export class MnemonicSeed {
      * @returns Object containing privateKey and publicKey
      */
     public async deriveKeys(
-        pathIndex = 0
+        pathIndex = 0,
+        change = 0
     ): Promise<{privateKey: PrivateKey; publicKey: PublicKey}> {
-        const privateKey = await this.derivePrivateKey(pathIndex)
+        const privateKey = await this.derivePrivateKey(pathIndex, change)
         const publicKey = privateKey.toPublic()
 
         return {
@@ -101,5 +142,16 @@ export class MnemonicSeed {
      */
     public async deriveActiveKey(): Promise<{privateKey: PrivateKey; publicKey: PublicKey}> {
         return this.deriveKeys(1)
+    }
+
+    public static deriveFromMasterPublicKey(masterExtendedKey: string, index: number): PublicKey {
+        const masterHDKey = HDKey.fromExtendedKey(masterExtendedKey)
+        const childKey = masterHDKey.deriveChild(index)
+
+        if (!childKey.publicKey) {
+            throw new Error('Failed to derive public key from master extended key')
+        }
+
+        return new PublicKey(KeyType.K1, Bytes.from(childKey.publicKey))
     }
 }
